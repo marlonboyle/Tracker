@@ -5,6 +5,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Log">
 <meta name="theme-color" content="#14181D">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
 <title>Log</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -211,6 +213,20 @@
     margin-bottom: 7px;
   }
   .set-hd span:nth-child(3), .set-hd span:nth-child(4) { text-align: center; }
+
+  .pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pk {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 3px; text-align: center;
+  }
+  .pk b {
+    display: block; font-family: var(--f-display); font-size: 17px;
+    font-weight: 700; color: var(--muted); line-height: 1;
+  }
+  .pk span { display: block; font-size: 10px; color: var(--dim); margin-top: 3px; }
+  .pk.on { border-color: rgba(232,163,61,.48); background: var(--raised); }
+  .pk.on b { color: var(--amber); }
+  .pk.on span { color: var(--muted); }
 
   .rest-day { text-align: center; padding: 34px 20px; }
   .rest-day .big {
@@ -537,27 +553,27 @@
 
   /* ---------- program ---------- */
   const WORKOUTS = {
-    A: { name:'Upper', day:2, ex:[
+    A: { name:'Upper', short:'Upper', day:2, ex:[
       ['DB bench press','3 × 6–10',3],
       ['Pull-up (or negatives)','3 × 4–8',3],
       ['Seated DB shoulder press','3 × 8–12',3],
       ['One-arm DB row','3 × 8–12 ea',3],
       ['EZ bar curl','2 × 10–15',2],
       ['DB overhead triceps ext.','2 × 10–15',2]]},
-    B: { name:'Lower', day:4, ex:[
+    B: { name:'Lower', short:'Lower', day:4, ex:[
       ['DB goblet squat','3 × 8–12',3],
       ['DB Romanian deadlift','3 × 8–12',3],
       ['Bulgarian split squat','2 × 8–12 ea',2],
       ['DB calf raise','2 × 12–20',2],
       ['Plank (log seconds)','2 × 30–45 s',2]]},
-    C: { name:'Upper', day:6, ex:[
+    C: { name:'Upper', short:'Upper', day:6, ex:[
       ['DB incline press','3 × 8–12',3],
       ['Chin-up or inverted row','3 × 5–10',3],
       ['Chest-supported DB row','3 × 10–12',3],
       ['DB lateral raise','3 × 12–15',3],
       ['EZ bar skullcrusher','2 × 10–12',2],
       ['DB hammer curl','2 × 10–15',2]]},
-    D: { name:'Lower + Core', day:0, ex:[
+    D: { name:'Lower + Core', short:'Lower', day:0, ex:[
       ['DB reverse lunge','3 × 8–12 ea',3],
       ['DB hip thrust','3 × 10–15',3],
       ['Single-leg RDL','2 × 10–12 ea',2],
@@ -702,14 +718,33 @@
     return null;
   }
 
+  function pickerHTML(current){
+    const scheduled = byDay[NOW.getDay()];
+    const label = current
+      ? (current === scheduled ? 'Doing a different one?' : 'Switch workout')
+      : 'Making up a session?';
+    let h = `<div class="eyebrow">${label}</div><div class="pick">`;
+    ['A','B','C','D'].forEach(k=>{
+      h += `<button class="pk${k===current?' on':''}" data-pick="${k}">
+        <b>${k}</b><span>${WORKOUTS[k].short}</span></button>`;
+    });
+    h += `</div>`;
+    if (current && current !== scheduled)
+      h += `<div class="btn-row"><button class="btn ghost sm" data-pick="clear" style="width:100%">Back to rest day</button></div>`;
+    return h;
+  }
+
   function renderTrain(){
-    const letter = byDay[NOW.getDay()];
+    const scheduled = byDay[NOW.getDay()];
+    const rec = D.training[TODAY];
+    const letter = (rec && rec.w) || scheduled;
     const pane = $('p-train');
+    const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
     if (!letter){
-      const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
       pane.innerHTML = `<div class="rest-day"><div class="big">Rest day</div>
         <p>No lifting on ${names[NOW.getDay()]}. Walk the dog, eat your protein.</p></div>
+        ${pickerHTML(null)}
         <div class="note"><b>Next up:</b> ${nextUp()}. Rest is when the muscle is actually built — the training only starts the process.</div>`;
       return;
     }
@@ -717,9 +752,10 @@
     const w = WORKOUTS[letter];
     if (!D.training[TODAY]) D.training[TODAY] = {w:letter, log:{}};
     const log = D.training[TODAY].log;
+    const shifted = letter !== scheduled;
 
     let html = `<div class="wk-head"><h2>Workout ${letter} — ${w.name}</h2>
-      <p>5-min warm-up first. Stop every set 1–3 reps short of failure. Never hold your breath.</p></div>`;
+      <p>${shifted ? 'Made-up session. It logs and progresses exactly like a scheduled one.' : '5-min warm-up first. Stop every set 1–3 reps short of failure. Never hold your breath.'}</p></div>`;
 
     w.ex.forEach((ex, ei)=>{
       const [name, scheme, nsets] = ex;
@@ -744,6 +780,7 @@
     });
 
     html += `<div class="note"><b>Tap a "last time" number to copy it in</b>, then beat it by a rep. When every set hits the top of the range, add 5 lb next session and drop back to the bottom. That loop is the entire program.</div>`;
+    html += pickerHTML(letter);
     pane.innerHTML = html;
   }
 
@@ -1020,7 +1057,7 @@
     $('p-train').addEventListener('input', e=>{
       const i = e.target;
       if (!i.dataset.k) return;
-      const letter = byDay[NOW.getDay()];
+      const letter = (D.training[TODAY] && D.training[TODAY].w) || byDay[NOW.getDay()];
       const name = WORKOUTS[letter].ex[+i.dataset.ex][0];
       D.training[TODAY].log[name][+i.dataset.s][i.dataset.k] = i.value;
       const row = i.closest('.set');
@@ -1030,6 +1067,24 @@
     });
 
     $('p-train').addEventListener('click', e=>{
+      const pick = e.target.closest('[data-pick]');
+      if (pick){
+        const k = pick.dataset.pick;
+        const cur = D.training[TODAY];
+        const hasSets = cur && Object.values(cur.log).some(s=>s.some(x=>x&&x.wt));
+
+        if (k === 'clear'){
+          if (hasSets && !confirm('This clears the sets you logged today. Continue?')) return;
+          delete D.training[TODAY];
+        } else {
+          if (cur && cur.w === k) return;
+          if (hasSets && !confirm(`You have sets logged under Workout ${cur.w}. Switching clears them. Continue?`)) return;
+          D.training[TODAY] = {w:k, log:{}};
+        }
+        save(); renderTrain(); renderHist(); renderInsights();
+        return;
+      }
+
       const b = e.target.closest('[data-fill]');
       if (!b || !b.dataset.wt) return;
       const row = b.closest('.set');
