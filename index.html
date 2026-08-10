@@ -34,6 +34,7 @@
     --amber:   #E8A33D;
     --sage:    #5FA88A;
     --rust:    #D96B5B;
+    --steel:   #6E93B8;
 
     --f-display: 'Barlow Condensed', system-ui, sans-serif;
     --f-body: 'Barlow', system-ui, sans-serif;
@@ -319,6 +320,32 @@
   .idea .n.warn { color: var(--rust); }
 
   /* ---------- insights ---------- */
+  /* ---------- recovery chart ---------- */
+  .chart-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 12px 12px; }
+  .chart-top { display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px 10px; }
+  .chart-now { font-family: var(--f-display); font-size: 34px; font-weight: 700; line-height: 1; }
+  .chart-lbl { font-family: var(--f-data); font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+  .chart svg { width: 100%; height: auto; display: block; }
+
+  .lgnd {
+    display: flex; justify-content: center; gap: 4px;
+    margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--line);
+  }
+  .lg {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 11px; border-radius: 7px;
+    font-family: var(--f-body); font-size: 12.5px; color: var(--dim);
+    white-space: nowrap;
+  }
+  .lg i { width: 9px; height: 9px; border-radius: 50%; opacity: .3; flex-shrink: 0; }
+  .lg.on { color: var(--ink); background: var(--raised); }
+  .lg.on i { opacity: 1; }
+
+  .mstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .mstat { text-align: center; }
+  .mstat .k { font-family: var(--f-display); font-size: 9.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .mstat .v { font-family: var(--f-data); font-size: 16px; margin-top: 2px; }
+
   .ins { display: flex; gap: 11px; padding: 12px 0; border-bottom: 1px solid var(--line); }
   .ins:last-child { border-bottom: none; }
   .ins i { width: 3px; border-radius: 2px; flex-shrink: 0; }
@@ -334,11 +361,37 @@
   }
   .cell {
     aspect-ratio: 1; border-radius: 7px; background: var(--surface);
+    border: 1px solid transparent;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 3px; font-family: var(--f-data); font-size: 11px; color: var(--dim);
   }
-  .cell.blank { background: none; }
+  .cell.has { border-color: var(--line); color: var(--muted); }
+  .cell:active { background: var(--raised); }
+  .cell.blank { background: none; border: none; }
   .cell.today { outline: 1px solid var(--amber); }
+
+  /* ---------- day detail ---------- */
+  .d-sec { margin-bottom: 18px; }
+  .d-sec:last-child { margin-bottom: 0; }
+  .d-hd {
+    font-family: var(--f-display); font-size: 12px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px; display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .d-hd em { font-family: var(--f-data); font-size: 11px; font-style: normal; color: var(--amber); letter-spacing: 0; }
+  .d-ex { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .d-ex:last-child { border-bottom: none; }
+  .d-ex .n { font-size: 13.5px; font-weight: 500; }
+  .d-ex .s { font-family: var(--f-data); font-size: 12px; color: var(--amber); margin-top: 3px; }
+  .d-macros {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 9px; padding: 11px 8px; margin-bottom: 9px;
+  }
+  .d-macros div { text-align: center; }
+  .d-macros .k { font-family: var(--f-display); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .d-macros .v { font-family: var(--f-data); font-size: 14px; margin-top: 2px; }
+  .d-none { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
   .cell .dots { display: flex; gap: 2px; height: 4px; }
   .dot { width: 4px; height: 4px; border-radius: 50%; }
   .dot.t { background: var(--amber); }
@@ -356,14 +409,16 @@
   .tabs {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 460px; z-index: 40;
-    display: grid; grid-template-columns: repeat(4, 1fr);
+    display: flex; justify-content: space-between; align-items: stretch;
     background: var(--surface); border-top: 1px solid var(--line);
-    padding-bottom: env(safe-area-inset-bottom);
+    padding: 0 8px env(safe-area-inset-bottom);
   }
   .tab {
-    padding: 13px 4px 15px; text-align: center;
-    font-family: var(--f-display); font-size: 12px; font-weight: 600;
-    letter-spacing: .13em; text-transform: uppercase; color: var(--dim);
+    padding: 14px clamp(6px, 3.2vw, 17px) 16px; text-align: center;
+    font-family: var(--f-display); font-weight: 600;
+    font-size: clamp(9.5px, 2.7vw, 12px);
+    letter-spacing: .05em; text-transform: uppercase; color: var(--dim);
+    white-space: nowrap; flex: 0 0 auto; min-width: 44px;
     border-top: 2px solid transparent; margin-top: -1px;
   }
   .tab.on { color: var(--amber); border-top-color: var(--amber); }
@@ -447,19 +502,30 @@
     </div>
     <div class="note"><b>Monday mornings, same conditions.</b> Judge the weekly average, never a single day. Water weight swings 3 lb and means nothing.</div>
 
-    <div class="eyebrow">Recovery — from Whoop</div>
+    <div class="eyebrow">History</div>
+    <div id="wt-list"></div>
+  </div>
+
+  <!-- ============ RECOVERY ============ -->
+  <div class="pane" id="p-rec">
+    <div id="chart-area"></div>
+    <div class="note" id="m-note"></div>
+
+    <div class="eyebrow">Log from Whoop</div>
     <div class="form">
       <div class="three">
         <div class="f-cell"><label>Recovery %</label><input id="r-rec" type="number" inputmode="numeric" placeholder="65"></div>
         <div class="f-cell"><label>Sleep hrs</label><input id="r-sleep" type="number" step="0.1" inputmode="decimal" placeholder="7.5"></div>
         <div class="f-cell"><label>Rest HR</label><input id="r-rhr" type="number" inputmode="numeric" placeholder="58"></div>
       </div>
-      <div class="btn-row"><button class="btn" id="add-rec">Save for today</button></div>
+      <div class="two" style="margin-top:8px">
+        <div class="f-cell"><label>Date</label><input id="r-date" type="date"></div>
+        <div class="f-cell"><label>&nbsp;</label><button class="btn" id="add-rec" style="padding:11px 6px">Save</button></div>
+      </div>
     </div>
-    <div class="note"><b>Resting heart rate is the long game.</b> Day to day it's noise. Over months, a downward trend is real evidence the training is working on your cardiovascular health — and it's a number worth showing your doctor.</div>
 
-    <div class="eyebrow">History</div>
-    <div id="wt-list"></div>
+    <div class="eyebrow">Entries</div>
+    <div id="rec-list"></div>
   </div>
 
   <!-- ============ HISTORY ============ -->
@@ -505,13 +571,14 @@
       <h3 id="sheet-t">Breakfast</h3>
       <button class="sheet-x" id="sheet-x" aria-label="Close">&times;</button>
     </div>
-    <div class="sheet-body" id="ideas"></div>
+    <div class="sheet-body" id="sheet-body"></div>
   </div>
 
   <div class="tabs">
     <button class="tab on" data-p="eat">Eat</button>
     <button class="tab" data-p="train">Train</button>
     <button class="tab" data-p="weight">Weight</button>
+    <button class="tab" data-p="rec">Recovery</button>
     <button class="tab" data-p="hist">History</button>
   </div>
 
@@ -852,8 +919,9 @@
       const ds = iso(new Date(y,m,d));
       const tr = D.training[ds] && Object.values(D.training[ds].log).some(sets=>sets.some(s=>s&&s.wt));
       const pr = totals(ds).p >= D.targets.p;
-      html += `<div class="cell${ds===TODAY?' today':''}"><span>${d}</span>
-        <span class="dots">${tr?'<i class="dot t"></i>':''}${pr?'<i class="dot p"></i>':''}</span></div>`;
+      const any = tr || totals(ds).cal > 0 || D.weights.some(w=>w.d===ds) || D.recovery[ds];
+      html += `<button class="cell${any?' has':''}${ds===TODAY?' today':''}" data-d="${ds}"><span>${d}</span>
+        <span class="dots">${tr?'<i class="dot t"></i>':''}${pr?'<i class="dot p"></i>':''}</span></button>`;
     }
     $('cal').innerHTML = html;
 
@@ -880,11 +948,19 @@
   }
 
   let ideaKey = 'b';
+  let sheetMode = 'ideas';
+
+  function showSheet(){
+    $('sheet').classList.add('on');
+    $('sheet-bg').classList.add('on');
+    $('sheet-body').scrollTop = 0;
+  }
 
   function openSheet(k){
+    sheetMode = 'ideas';
     ideaKey = k;
     $('sheet-t').textContent = k === 'b' ? 'Breakfast' : 'Snacks';
-    $('ideas').innerHTML = IDEAS[k].map((x,i)=>`
+    $('sheet-body').innerHTML = IDEAS[k].map((x,i)=>`
       <button class="idea" data-idea="${i}">
         <div class="t"><b>${esc(x.n)}</b><em>${x.p} g protein</em></div>
         <div class="m">${esc(x.d)}</div>
@@ -892,9 +968,71 @@
         ${x.note?`<div class="n">${esc(x.note)}</div>`:''}
         ${x.warn?`<div class="n warn">${esc(x.warnText)}</div>`:''}
       </button>`).join('');
-    $('ideas').scrollTop = 0;
-    $('sheet').classList.add('on');
-    $('sheet-bg').classList.add('on');
+    showSheet();
+  }
+
+  function openDay(ds){
+    sheetMode = 'day';
+    const dt = new Date(ds + 'T12:00:00');
+    $('sheet-t').textContent = dt.toLocaleDateString('en-US',{weekday:'long', month:'short', day:'numeric'});
+
+    let h = '';
+
+    // training
+    const tr = D.training[ds];
+    const done = tr ? Object.entries(tr.log).filter(([,sets])=>sets.some(s=>s&&s.wt)) : [];
+    if (done.length){
+      const w = WORKOUTS[tr.w];
+      let vol = 0;
+      done.forEach(([,sets])=>sets.forEach(s=>{ if (s.wt && s.r) vol += num(s.wt)*num(s.r); }));
+      h += `<div class="d-sec"><div class="d-hd"><span>Workout ${tr.w} — ${w.name}</span><em>${Math.round(vol).toLocaleString()} lb moved</em></div>`;
+      done.forEach(([name, sets])=>{
+        const txt = sets.filter(s=>s&&s.wt).map(s=>`${s.wt}×${s.r||'?'}`).join('  ·  ');
+        h += `<div class="d-ex"><div class="n">${esc(name)}</div><div class="s">${txt}</div></div>`;
+      });
+      h += `</div>`;
+    } else {
+      h += `<div class="d-sec"><div class="d-hd"><span>Training</span></div><div class="d-none">No session logged.</div></div>`;
+    }
+
+    // nutrition
+    const meals = D.meals[ds] || [];
+    const t = totals(ds);
+    h += `<div class="d-sec"><div class="d-hd"><span>Food</span>${meals.length?`<em>${meals.length} entr${meals.length>1?'ies':'y'}</em>`:''}</div>`;
+    if (meals.length){
+      const over = t.na > D.targets.na;
+      h += `<div class="d-macros">
+        <div><div class="k">Cal</div><div class="v">${Math.round(t.cal)}</div></div>
+        <div><div class="k">Prot</div><div class="v" style="color:${t.p>=D.targets.p?'var(--sage)':'var(--amber)'}">${Math.round(t.p)}</div></div>
+        <div><div class="k">Carb</div><div class="v">${Math.round(t.c)}</div></div>
+        <div><div class="k">Fat</div><div class="v">${Math.round(t.f)}</div></div>
+        <div><div class="k">Sod</div><div class="v" style="color:${over?'var(--rust)':'var(--ink)'}">${Math.round(t.na)}</div></div>
+      </div>`;
+      meals.forEach(m=>{
+        h += `<div class="row"><div class="row-main"><div class="row-name">${esc(m.n)}</div>
+          <div class="row-sub">${m.p}p · ${m.c}c · ${m.f}f · ${m.na}mg</div></div>
+          <div class="row-cal">${m.cal}</div></div>`;
+      });
+    } else {
+      h += `<div class="d-none">Nothing logged.</div>`;
+    }
+    h += `</div>`;
+
+    // weight + recovery
+    const wt = D.weights.find(w=>w.d===ds);
+    const rc = D.recovery[ds];
+    if (wt || rc){
+      h += `<div class="d-sec"><div class="d-hd"><span>Body</span></div>`;
+      if (wt) h += `<div class="d-ex"><div class="n">Weight</div><div class="s">${wt.lb.toFixed(1)} lb</div></div>`;
+      if (rc){
+        const bits = [rc.rec?`${rc.rec}% recovery`:'', rc.sleep?`${rc.sleep} h sleep`:'', rc.rhr?`${rc.rhr} bpm resting`:''].filter(Boolean);
+        if (bits.length) h += `<div class="d-ex"><div class="n">Recovery</div><div class="s">${bits.join('  ·  ')}</div></div>`;
+      }
+      h += `</div>`;
+    }
+
+    $('sheet-body').innerHTML = h;
+    showSheet();
   }
 
   function closeSheet(){
@@ -992,8 +1130,136 @@
           : `On pace. At this rate you reach ${D.goalWeight} in about ${Math.ceil((D.goalWeight-b.lb)/perWk)} weeks.`}</span>`);
     }
 
+    // recovery
+    const sleeps = wk.map(d=>D.recovery[d]).filter(r=>r&&r.sleep>0).map(r=>r.sleep);
+    if (sleeps.length >= 3){
+      const avgS = sleeps.reduce((a,b)=>a+b,0)/sleeps.length;
+      const short = sleeps.filter(s=>s<7).length;
+      push(avgS >= 7 ? 'g' : 'w',
+        `<b>Sleep averaging ${avgS.toFixed(1)} hours.</b> <span>${
+          avgS >= 7 ? `${short === 0 ? 'Every night at 7+' : `${short} night${short>1?'s':''} under 7`}. Sleep is where the muscle actually gets built.`
+          : `${short} of ${sleeps.length} nights under 7 hours. This blunts recovery and appetite at the same time — of everything here, it's the most likely reason a good program stalls.`}</span>`);
+    }
+
+    const recs = wk.map(d=>D.recovery[d]).filter(r=>r&&r.rec>0).map(r=>r.rec);
+    if (recs.length >= 3){
+      const avgR = recs.reduce((a,b)=>a+b,0)/recs.length;
+      if (avgR < 50)
+        push('w', `<b>Recovery averaging ${Math.round(avgR)}%.</b> <span>Running low. If it stays here alongside missed sessions, the four-day split may be more than you're recovering from right now — the 3× full-body version exists for exactly that.</span>`);
+    }
+
     const col = {g:'var(--sage)', w:'var(--amber)', b:'var(--rust)', n:'var(--line)'};
     $('insights').innerHTML = out.map(o=>`<div class="ins"><i style="background:${col[o.tone]}"></i><p>${o.html}</p></div>`).join('');
+  }
+
+  /* ---------- recovery ---------- */
+  const METRICS = {
+    rec:   {label:'Recovery', unit:'%', dec:0, color:'#5FA88A', better:'high',
+            note:'<b>Recovery reflects readiness, not effort.</b> One low day means nothing. Several under 50% in a row usually points at sleep, stress, or too much volume — and with a newborn coming, that will happen. It\'s information, not a verdict.'},
+    sleep: {label:'Sleep', unit:' h', dec:1, color:'#E8A33D', better:'high',
+            note:'<b>Muscle is built asleep, not in the gym.</b> Under 7 hours regularly and you blunt recovery and appetite regulation at the same time. Of everything you track, this is the one most likely to quietly stall your progress.'},
+    rhr:   {label:'Rest HR', unit:' bpm', dec:0, color:'#6E93B8', better:'low',
+            note:'<b>The long game.</b> Day to day it\'s noise. A downward trend over months is real evidence the training is improving your cardiovascular health — and it\'s the number worth bringing to your doctor.'}
+  };
+  let recKey = 'rec';
+
+  function recSeries(key){
+    return Object.keys(D.recovery).sort()
+      .map(d => ({d, v: num(D.recovery[d][key])}))
+      .filter(x => x.v > 0);
+  }
+
+  function lineChart(pts, color, dec, unit){
+    const W = 320, H = 150, L = 34, R = 10, T = 14, B = 24;
+    if (!pts.length) return '';
+    const vals = pts.map(p=>p.v);
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    if (hi === lo){ hi = lo + 1; lo = Math.max(0, lo - 1); }
+    const pad = (hi-lo)*0.15; lo -= pad; hi += pad;
+
+    const X = i => pts.length === 1 ? (L+W-R)/2 : L + (i/(pts.length-1))*(W-L-R);
+    const Y = v => T + (1-(v-lo)/(hi-lo))*(H-T-B);
+    const fmt = v => v.toFixed(dec);
+
+    let g = '';
+    [0,0.5,1].forEach(f=>{
+      const v = lo + (hi-lo)*f, y = Y(v);
+      g += `<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="#333D48" stroke-width="1" opacity=".55"/>
+            <text x="${L-6}" y="${(y+3.5).toFixed(1)}" text-anchor="end" fill="#5A6470" font-size="9" font-family="IBM Plex Mono">${fmt(v)}</text>`;
+    });
+
+    const line = pts.map((p,i)=>`${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ');
+    const area = `${L},${H-B} ${line} ${X(pts.length-1).toFixed(1)},${H-B}`;
+    const dots = pts.map((p,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="${pts.length>18?1.8:2.8}" fill="${color}"/>`).join('');
+
+    const short = s => { const [,m,d] = s.split('-'); return `${+m}/${+d}`; };
+    const xl = `<text x="${L}" y="${H-6}" fill="#5A6470" font-size="9" font-family="IBM Plex Mono">${short(pts[0].d)}</text>` +
+      (pts.length>1?`<text x="${W-R}" y="${H-6}" text-anchor="end" fill="#5A6470" font-size="9" font-family="IBM Plex Mono">${short(pts[pts.length-1].d)}</text>`:'');
+
+    return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img">
+      <defs><linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient></defs>
+      ${g}
+      ${pts.length>1?`<polygon points="${area}" fill="url(#fade)"/>`:''}
+      ${pts.length>1?`<polyline points="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`:''}
+      ${dots}${xl}
+    </svg></div>`;
+  }
+
+  function renderRecovery(){
+    const M = METRICS[recKey];
+    const pts = recSeries(recKey);
+    $('m-note').innerHTML = M.note;
+
+    const legend = `<div class="lgnd">` + Object.keys(METRICS).map(k=>
+      `<button class="lg${k===recKey?' on':''}" data-m="${k}">
+        <i style="background:${METRICS[k].color}"></i>${METRICS[k].label}</button>`).join('') + `</div>`;
+
+    let head, body, stats;
+
+    if (!pts.length){
+      head = `<div class="chart-top"><div>
+        <div class="chart-now" style="color:var(--dim)">—</div>
+        <div class="chart-lbl">no ${M.label.toLowerCase()} logged yet</div></div></div>`;
+      body = `<div class="d-none" style="text-align:center;padding:34px 10px">Log a few days below and the trend appears here.</div>`;
+      stats = '';
+    } else {
+      const latest = pts[pts.length-1];
+      const avg = a => a.reduce((s,p)=>s+p.v,0)/a.length;
+      const change = pts.length > 1 ? latest.v - pts[0].v : 0;
+      const good = M.better === 'high' ? change > 0 : change < 0;
+      const arrow = change === 0 ? '' : (change > 0 ? '▲' : '▼');
+
+      head = `<div class="chart-top">
+        <div>
+          <div class="chart-now" style="color:${M.color}">${latest.v.toFixed(M.dec)}<span style="font-size:15px;color:var(--muted)">${M.unit}</span></div>
+          <div class="chart-lbl">latest · ${latest.d}</div>
+        </div>
+        ${pts.length>1?`<div class="chart-lbl" style="color:${change===0?'var(--muted)':(good?'var(--sage)':'var(--amber)')}">${arrow} ${Math.abs(change).toFixed(M.dec)}${M.unit} since ${pts[0].d.slice(5)}</div>`:''}
+      </div>`;
+      body = lineChart(pts.slice(-30), M.color, M.dec, M.unit);
+      stats = `<div class="mstats">
+        <div class="mstat"><div class="k">7-day avg</div><div class="v">${avg(pts.slice(-7)).toFixed(M.dec)}</div></div>
+        <div class="mstat"><div class="k">30-day avg</div><div class="v">${avg(pts.slice(-30)).toFixed(M.dec)}</div></div>
+        <div class="mstat"><div class="k">Entries</div><div class="v">${pts.length}</div></div>
+      </div>`;
+    }
+
+    $('chart-area').innerHTML = `<div class="chart-wrap">${head}${body}${legend}${stats}</div>`;
+
+    const all = Object.keys(D.recovery).sort().reverse();
+    $('rec-list').innerHTML = all.length
+      ? all.map(d=>{
+          const r = D.recovery[d];
+          const bits = [r.rec?`${r.rec}% rec`:'', r.sleep?`${r.sleep} h`:'', r.rhr?`${r.rhr} bpm`:''].filter(Boolean);
+          if (!bits.length) return '';
+          return `<div class="row"><div class="row-main"><div class="row-name">${d}</div>
+            <div class="row-sub">${bits.join(' · ')}</div></div>
+            <button class="x" data-rdel="${d}">×</button></div>`;
+        }).join('')
+      : '<div class="empty">Nothing logged yet.</div>';
   }
 
   function download(name, text, type){
@@ -1014,6 +1280,7 @@
         $('p-'+b.dataset.p).classList.add('on');
         if (b.dataset.p==='train') renderTrain();
         if (b.dataset.p==='weight') renderWeight();
+        if (b.dataset.p==='rec') renderRecovery();
         if (b.dataset.p==='hist'){ renderHist(); renderInsights(); }
         document.getElementById('app').scrollIntoView({block:'start'});
       };
@@ -1038,7 +1305,13 @@
     $('sheet-bg').onclick = closeSheet;
     document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeSheet(); });
 
-    $('ideas').onclick = e=>{
+    $('cal').onclick = e=>{
+      const c = e.target.closest('[data-d]');
+      if (c) openDay(c.dataset.d);
+    };
+
+    $('sheet-body').onclick = e=>{
+      if (sheetMode !== 'ideas') return;
       const b = e.target.closest('[data-idea]');
       if (!b) return;
       const x = IDEAS[ideaKey][+b.dataset.idea];
@@ -1104,9 +1377,25 @@
       toast('Saved');
     };
 
+    $('chart-area').onclick = e=>{
+      const b = e.target.closest('[data-m]');
+      if (b){ recKey = b.dataset.m; renderRecovery(); }
+    };
+
     $('add-rec').onclick = ()=>{
-      D.recovery[TODAY] = {rec:num($('r-rec').value), sleep:num($('r-sleep').value), rhr:num($('r-rhr').value)};
-      save(); renderWeight(); toast('Saved');
+      const d = $('r-date').value || TODAY;
+      const rec = num($('r-rec').value), sleep = num($('r-sleep').value), rhr = num($('r-rhr').value);
+      if (!rec && !sleep && !rhr){ toast('Enter at least one number'); return; }
+      D.recovery[d] = {rec, sleep, rhr};
+      save(); renderRecovery(); renderWeight(); renderInsights();
+      toast('Saved');
+    };
+
+    $('rec-list').onclick = e=>{
+      const b = e.target.closest('[data-rdel]');
+      if (!b) return;
+      delete D.recovery[b.dataset.rdel];
+      save(); renderRecovery(); renderWeight(); renderInsights();
     };
 
     $('wt-list').onclick = e=>{
@@ -1160,12 +1449,13 @@
 
     $('today-str').textContent = NOW.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'}).toUpperCase();
     $('w-date').value = TODAY;
+    $('r-date').value = TODAY;
     const g = D.targets;
     $('t-cal').value=g.cal; $('t-p').value=g.p; $('t-c').value=g.c; $('t-f').value=g.f; $('t-na').value=g.na;
     const r = D.recovery[TODAY];
     if (r){ $('r-rec').value = r.rec||''; $('r-sleep').value = r.sleep||''; $('r-rhr').value = r.rhr||''; }
 
-    wire(); renderGreet(); renderEat(); renderWeight(); renderHist(); renderInsights(); renderBackupLine();
+    wire(); renderGreet(); renderEat(); renderWeight(); renderRecovery(); renderHist(); renderInsights(); renderBackupLine();
   })();
 })();
 </script>
