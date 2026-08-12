@@ -441,61 +441,134 @@
   .stat .k { font-family: var(--f-display); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .stat .v { font-family: var(--f-data); font-size: 21px; font-weight: 500; margin-top: 3px; }
 
-  /* ---------- water ---------- */
-  .w-card {
-    background: var(--surface); border: 1px solid var(--line);
-    border-left: 3px solid var(--steel); border-radius: 0 10px 10px 0;
-    padding: 14px 15px;
-  }
-  .w-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 9px; gap: 10px; }
-  .w-num { font-family: var(--f-display); font-size: 30px; font-weight: 700; line-height: 1; }
-  .w-num .w-u { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin-left: 4px; text-transform: uppercase; }
-  .w-goal { font-family: var(--f-data); font-size: 11px; color: var(--muted); text-align: right; }
-  .w-goal b { color: var(--steel); font-weight: 600; }
-
-  .w-bar { position: relative; }
-  .w-mk {
-    position: absolute; top: -3px; bottom: -3px; width: 2px;
-    background: var(--ink); opacity: .5; border-radius: 1px; pointer-events: none;
-  }
-  .w-mk.done { background: var(--sage); opacity: .85; }
-  .w-status { font-family: var(--f-data); font-size: 11px; color: var(--muted); margin-top: 9px; line-height: 1.5; }
-  .w-status b { color: var(--steel); font-weight: 600; }
-  .w-status b.ok { color: var(--sage); }
-
-  .w-in { display: flex; gap: 8px; align-items: stretch; }
-  .w-in input {
-    flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line);
-    border-radius: 7px; padding: 11px 12px; text-align: center;
-    font-family: var(--f-data); font-size: 16px;
-  }
-  .w-unit { display: flex; flex: 0 0 auto; background: var(--bg); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
-  .w-ub {
-    padding: 0 15px; font-family: var(--f-display); font-size: 13px; font-weight: 600;
-    letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
-  }
-  .w-ub.on { background: var(--raised); color: var(--steel); }
-
-  .chip.w-chip { border-color: rgba(110,147,184,.32); }
-  .chip.w-chip .amt { font-family: var(--f-data); font-size: 13px; }
-
   /* ---------- tabs ---------- */
-  .tabs {
+  #app { --cw: clamp(26px, 7.2vw, 33px); --cg: 0px; }
+
+  .tabbar {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 460px; z-index: 40;
-    display: flex; justify-content: space-between; align-items: stretch;
     background: var(--surface); border-top: 1px solid var(--line);
-    padding: 0 8px env(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
   }
+  /* edge fades — only visible when there's more to scroll to */
+  .tabbar::before, .tabbar::after {
+    content: ''; position: absolute; top: 0; bottom: env(safe-area-inset-bottom);
+    width: 26px; pointer-events: none; z-index: 2;
+    opacity: 0; transition: opacity .18s;
+  }
+  .tabbar::before {
+    left: 0; background: linear-gradient(90deg, var(--surface) 20%, transparent);
+  }
+  .tabbar::after {
+    right: 0; background: linear-gradient(270deg, var(--surface) 20%, transparent);
+  }
+  .tabbar.more-l::before { opacity: 1; }
+  .tabbar.more-r::after  { opacity: 1; }
+
+  .tabs {
+    display: flex; justify-content: space-between; align-items: stretch;
+    padding: 0 8px;
+    overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;   /* stops iOS back-swipe hijacking the drag */
+    touch-action: pan-x;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
   .tab {
-    padding: 14px clamp(6px, 3.2vw, 17px) 16px; text-align: center;
+    padding: 14px clamp(11px, 3.8vw, 19px) 16px; text-align: center;
     font-family: var(--f-display); font-weight: 600;
-    font-size: clamp(9.5px, 2.7vw, 12px);
+    font-size: clamp(11px, 3vw, 13px);
     letter-spacing: .05em; text-transform: uppercase; color: var(--dim);
     white-space: nowrap; flex: 0 0 auto; min-width: 44px;
     border-top: 2px solid transparent; margin-top: -1px;
+    scroll-margin-inline: 40px;
   }
   .tab.on { color: var(--amber); border-top-color: var(--amber); }
+
+  /* ---------- habits ---------- */
+  .hb-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 15px 14px 13px;
+  }
+  .hb-card h4 {
+    font-family: var(--f-display); font-size: 13px; font-weight: 700;
+    letter-spacing: .11em; text-transform: uppercase; color: var(--muted);
+    margin: 0 0 13px; display: flex; align-items: center; gap: 7px;
+  }
+  .hb-card h4 svg { width: 14px; height: 14px; flex: 0 0 auto; }
+
+  .hb-row {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) repeat(7, var(--cw));
+    align-items: center; gap: 0 var(--cg);
+    border-bottom: 1px solid var(--line);
+  }
+  .hb-row:last-of-type { border-bottom: 0; }
+  .hb-row.hd { border-bottom: 0; padding-bottom: 3px; }
+  .hb-row.hd span {
+    font-family: var(--f-data); font-size: 10px; color: var(--dim);
+    text-align: center; letter-spacing: .04em;
+  }
+  .hb-name {
+    font-size: clamp(12px, 3.4vw, 14px); line-height: 1.25;
+    padding: 11px 8px 11px 0; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .hb-dot {
+    width: var(--cw); height: 44px; display: flex;
+    align-items: center; justify-content: center; padding: 0;
+    background: none; border: 0; -webkit-tap-highlight-color: transparent;
+  }
+  .hb-dot i {
+    width: clamp(20px, 5.6vw, 25px); height: clamp(20px, 5.6vw, 25px);
+    border-radius: 50%; background: var(--raised);
+    border: 1.5px solid transparent; display: block;
+    transition: background .13s, border-color .13s, transform .13s;
+  }
+  .hb-dot.today i { border-color: var(--dim); }
+  .hb-dot.on i { background: var(--c); border-color: var(--c); transform: scale(1.06); }
+  .hb-dot.future i { opacity: .3; }
+
+  .hb-cons { margin-top: 15px; }
+  .hb-cons .lbl {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12.5px; color: var(--muted); margin-bottom: 7px;
+  }
+  .hb-cons .lbl b { font-family: var(--f-data); font-size: 14px; color: var(--ink); }
+  .hb-cons .track { height: 6px; background: var(--raised); border-radius: 3px; overflow: hidden; }
+  .hb-cons .fill { height: 100%; border-radius: 3px; transition: width .3s; }
+
+  .hb-seg { display: flex; gap: 6px; }
+  .hb-seg button {
+    flex: 1; padding: 8px 4px; border-radius: 8px;
+    background: var(--raised); border: 1px solid var(--line); color: var(--muted);
+    font-family: var(--f-display); font-size: 11.5px; font-weight: 600;
+    letter-spacing: .07em; text-transform: uppercase;
+  }
+  .hb-seg button.on { background: var(--amber); border-color: var(--amber); color: #14181D; }
+
+  .hb-lgnd { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .hb-lgnd button {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border-radius: 999px;
+    background: var(--raised); border: 1px solid var(--line);
+    font-size: 11.5px; color: var(--dim);
+  }
+  .hb-lgnd button.on { color: var(--ink); }
+  .hb-lgnd button.on[data-c] { border-color: currentColor; }
+  .hb-lgnd i { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+  .hb-lgnd button:not(.on) i { opacity: .35; }
+
+  .hb-edit { display: flex; align-items: center; gap: 9px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .hb-edit i { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+  .hb-edit span { flex: 1; font-size: 14px; }
+  .hb-add { display: flex; gap: 8px; margin-top: 14px; }
+  .hb-add input {
+    flex: 1; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 7px; padding: 11px 12px; font-size: 14px; min-width: 0;
+  }
 
   .toast {
     position: fixed; left: 50%; bottom: calc(94px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(10px);
@@ -530,30 +603,6 @@
 
     <div class="eyebrow">The rest</div>
     <div class="macros" id="other-macros"></div>
-
-    <div class="eyebrow">Water</div>
-    <div class="w-card">
-      <div class="w-top">
-        <div class="w-num"><span id="wa-now">0</span><span class="w-u">oz</span></div>
-        <div class="w-goal">of <b id="wa-goal">118</b> oz<br><span id="wa-lit">0.0 / 3.5 L</span></div>
-      </div>
-      <div class="w-bar">
-        <div class="track"><div class="fill" id="wa-fill" style="width:0%;background:var(--steel)"></div></div>
-        <div class="w-mk" id="wa-mk"></div>
-      </div>
-      <div class="w-status" id="wa-status"></div>
-    </div>
-    <div class="form">
-      <div class="w-in">
-        <input id="wa-val" type="number" step="any" inputmode="decimal" placeholder="How much?">
-        <div class="w-unit">
-          <button class="w-ub on" data-wu="oz">oz</button>
-          <button class="w-ub" data-wu="ml">ml</button>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn" id="add-water">Add water</button></div>
-    </div>
-    <div id="water-list" style="margin-top:11px"></div>
 
     <div class="eyebrow">Log food</div>
     <div class="form">
@@ -659,12 +708,28 @@
         <div class="f-cell"><label>Fat</label><input id="t-f" type="number" inputmode="numeric"></div>
         <div class="f-cell"><label>Sod</label><input id="t-na" type="number" inputmode="numeric"></div>
       </div>
-      <div class="three" style="margin-top:9px">
-        <div class="f-cell"><label>H₂O train</label><input id="t-wtr" type="number" inputmode="numeric"></div>
-        <div class="f-cell"><label>H₂O rest</label><input id="t-wrs" type="number" inputmode="numeric"></div>
-        <div class="f-cell"><label>H₂O floor</label><input id="t-wfl" type="number" inputmode="numeric"></div>
-      </div>
       <div class="btn-row"><button class="btn" id="save-t">Save targets</button></div>
+    </div>
+  </div>
+
+  <!-- ============ HABITS ============ -->
+  <div class="pane" id="p-habit">
+    <div id="hb-engine"></div>
+
+    <div class="eyebrow">Habit progress</div>
+    <div class="hb-card">
+      <div class="hb-seg" id="hb-seg">
+        <button class="on" data-per="w">Weekly</button>
+        <button data-per="m">Monthly</button>
+      </div>
+      <div id="hb-chart"></div>
+    </div>
+
+    <div class="note" id="hb-note"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="hb-manage">Edit habits</button>
+      <button class="btn ghost" id="hb-reset">Reset week</button>
     </div>
   </div>
 
@@ -678,12 +743,15 @@
     <div class="sheet-body" id="sheet-body"></div>
   </div>
 
-  <div class="tabs">
-    <button class="tab on" data-p="eat">Eat</button>
-    <button class="tab" data-p="train">Train</button>
-    <button class="tab" data-p="weight">Weight</button>
-    <button class="tab" data-p="rec">Recovery</button>
-    <button class="tab" data-p="hist">History</button>
+  <div class="tabbar" id="tabbar">
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-p="eat">Eat</button>
+      <button class="tab" data-p="train">Train</button>
+      <button class="tab" data-p="weight">Weight</button>
+      <button class="tab" data-p="rec">Recovery</button>
+      <button class="tab" data-p="habit">Habits</button>
+      <button class="tab" data-p="hist">History</button>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -853,13 +921,29 @@
          'Evening, Marlon. Get it all logged.','Marlon — one more entry.']
   };
 
+  const HB_COLORS = ['#6E93B8','#5FA88A','#E8A33D','#9B7FC4','#C96A5A','#4FB3B3','#D07FA8',
+                     '#B8935F','#7FB8C4','#C47F9B'];
+
+  function defaultHabits(){
+    return [
+      {id:'sun',   n:'Morning sunlight'},
+      {id:'move',  n:'Movement / workout'},
+      {id:'read',  n:'Read / learn 20 min'},
+      {id:'biz',   n:'Business action'},
+      {id:'bed',   n:'In bed by 10:00 PM'},
+      {id:'early', n:'Ate before 7 PM'},
+      {id:'clean', n:'Ate clean'}
+    ];
+  }
+
   let D = null;
 
   function fresh(){
     return {
-      targets:{cal:2650,p:155,c:320,f:78,na:2300,wtr:118,wrs:100,wfl:85},
-      goalWeight:175, meals:{}, water:{},
-      weights:[], training:{}, recovery:{}, walks:{}, lastBackup:null
+      targets:{cal:2650,p:155,c:320,f:78,na:2300},
+      goalWeight:175, meals:{},
+      weights:[], training:{}, recovery:{}, walks:{},
+      habitDefs: defaultHabits(), habitLog:{}, lastBackup:null
     };
   }
 
@@ -878,67 +962,6 @@
     const t = {cal:0,p:0,c:0,f:0,na:0};
     (D.meals[date]||[]).forEach(m=>{ t.cal+=m.cal; t.p+=m.p; t.c+=m.c; t.f+=m.f; t.na+=m.na; });
     return t;
-  }
-
-  /* ---------- WATER ---------- */
-  const OZ_PER_ML = 0.0338140;
-  const L_OF = oz => oz / 33.8140;
-  let waterUnit = 'oz';
-
-  // A day counts as a training day if a workout is on the schedule for it,
-  // or if sets were actually logged (covers make-up sessions on rest days).
-  function isTrainDay(ds){
-    if (byDay[new Date(ds+'T12:00:00').getDay()]) return true;
-    const tr = D.training[ds];
-    return !!(tr && tr.log && Object.values(tr.log).some(sets => sets.some(s => s && s.wt)));
-  }
-  function waterGoal(ds){ return isTrainDay(ds) ? D.targets.wtr : D.targets.wrs; }
-  function waterTotal(ds){ return (D.water[ds]||[]).reduce((a,e)=>a+e.oz, 0); }
-
-  function renderWater(){
-    const oz    = waterTotal(TODAY);
-    const goal  = waterGoal(TODAY);
-    const floor = D.targets.wfl;
-    const train = isTrainDay(TODAY);
-
-    $('wa-now').textContent  = Math.round(oz);
-    $('wa-goal').textContent = goal;
-    $('wa-lit').textContent  = `${L_OF(oz).toFixed(1)} / ${L_OF(goal).toFixed(1)} L`;
-
-    $('wa-fill').style.width      = Math.min(100, oz/goal*100) + '%';
-    $('wa-fill').style.background = oz >= goal ? 'var(--sage)' : 'var(--steel)';
-
-    const mk = $('wa-mk');
-    mk.style.left = Math.min(100, floor/goal*100) + '%';
-    mk.classList.toggle('done', oz >= floor);
-    mk.title = `Floor — ${floor} oz`;
-
-    const dayNote = train ? 'training day' : 'rest day';
-    let s;
-    if (oz >= goal){
-      s = `<b class="ok">Goal hit</b> — ${Math.round(oz)} oz on a ${dayNote}. Anything above is fine.`;
-    } else if (oz >= floor){
-      s = `Floor cleared. <b>${Math.round(goal-oz)} oz</b> to the ${dayNote} goal.`;
-    } else if (oz > 0){
-      s = `<b>${Math.round(floor-oz)} oz</b> to the floor of ${floor}. Goal is ${goal} — ${dayNote}.`;
-    } else {
-      s = `Goal <b>${goal} oz</b> (${L_OF(goal).toFixed(1)} L) — ${dayNote}. Floor is <b>${floor} oz</b>, don't finish below it.`;
-    }
-    $('wa-status').innerHTML = s;
-
-    const list = D.water[TODAY] || [];
-    $('water-list').innerHTML = list.length
-      ? `<div class="chips">` + list.map((e,i)=>
-          `<span class="chip w-chip"><span class="amt">${e.raw} ${e.u}</span>` +
-          `<button class="del" data-wadel="${i}" aria-label="Remove">×</button></span>`).join('') + `</div>`
-      : '';
-  }
-
-  function addWater(raw, unit){
-    const oz = unit === 'ml' ? raw * OZ_PER_ML : raw;
-    if (!D.water[TODAY]) D.water[TODAY] = [];
-    D.water[TODAY].push({raw, u:unit, oz});
-    save(); renderWater(); renderHist();
   }
 
   /* ---------- EAT ---------- */
@@ -974,8 +997,6 @@
           <div class="row-sub">${m.p}p · ${m.c}c · ${m.f}f · ${m.na}mg</div></div>
           <div class="row-cal">${m.cal}</div><button class="x" data-mdel="${i}">×</button></div>`).join('')
       : '<div class="empty">Nothing logged yet today.</div>';
-
-    renderWater();
   }
 
   function addMeal(m){
@@ -1320,17 +1341,23 @@
     }
     h += `</div>`;
 
+    // habits
+    const hbDone = D.habitDefs.filter(hab=>isOn(ds, hab.id));
+    if (hbDone.length){
+      h += `<div class="d-sec"><div class="d-hd"><span>Habits</span><em>${hbDone.length} of ${D.habitDefs.length}</em></div>`;
+      hbDone.forEach(hab=>{
+        const i = D.habitDefs.findIndex(x=>x.id===hab.id);
+        h += `<div class="d-ex"><div class="n" style="color:${hbColor(i)}">${esc(hab.n)}</div></div>`;
+      });
+      h += `</div>`;
+    }
+
     // weight + recovery
     const wt = D.weights.find(w=>w.d===ds);
     const rc = D.recovery[ds];
     const wk = D.walks[ds];
-    const wOz = waterTotal(ds);
-    if (wt || rc || wk || wOz){
+    if (wt || rc || wk){
       h += `<div class="d-sec"><div class="d-hd"><span>Body</span></div>`;
-      if (wOz){
-        const gl = waterGoal(ds);
-        h += `<div class="d-ex"><div class="n">Water</div><div class="s" style="color:${wOz>=gl?'var(--sage)':(wOz<D.targets.wfl?'var(--amber)':'var(--ink)')}">${Math.round(wOz)} oz / ${gl}  ·  ${L_OF(wOz).toFixed(1)} L</div></div>`;
-      }
       if (wk) h += `<div class="d-ex"><div class="n">Dog walk</div><div class="s">${wk} minutes</div></div>`;
       if (wt) h += `<div class="d-ex"><div class="n">Weight</div><div class="s">${wt.lb.toFixed(1)} lb</div></div>`;
       if (rc){
@@ -1571,6 +1598,193 @@
       : '<div class="empty">Nothing logged yet.</div>';
   }
 
+  /* ---------- HABITS ---------- */
+  let hbPeriod = 'w';
+  const hbHidden = {};
+
+  const hbColor = i => HB_COLORS[i % HB_COLORS.length];
+  const isOn = (ds, id) => !!(D.habitLog[ds] && D.habitLog[ds][id]);
+
+  // Monday-start week
+  function mondayOf(d){
+    const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    x.setDate(x.getDate() - ((x.getDay()+6)%7));
+    return x;
+  }
+  function weekDates(monday){
+    return Array.from({length:7}, (_,i)=>
+      iso(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate()+i)));
+  }
+
+  function toggleHabit(ds, id){
+    if (!D.habitLog[ds]) D.habitLog[ds] = {};
+    if (D.habitLog[ds][id]) delete D.habitLog[ds][id];
+    else D.habitLog[ds][id] = 1;
+    if (!Object.keys(D.habitLog[ds]).length) delete D.habitLog[ds];
+    save();
+  }
+
+  function renderHabits(){
+    const mon = mondayOf(NOW);
+    const days = weekDates(mon);
+    const defs = D.habitDefs;
+
+    let h = `<div class="hb-card">
+      <h4><svg viewBox="0 0 24 24" fill="none" stroke="#E8A33D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 4-3 5-3 8a3 3 0 0 0 6 0c0-1-.5-2-.5-2 2 1.5 3.5 3.5 3.5 6a6 6 0 0 1-12 0c0-5 6-7 6-12z"/></svg>Daily habit engine</h4>
+      <div class="hb-row hd"><span></span>${
+        ['M','T','W','T','F','S','S'].map(d=>`<span>${d}</span>`).join('')}</div>`;
+
+    defs.forEach((hab, hi)=>{
+      h += `<div class="hb-row"><div class="hb-name" title="${esc(hab.n)}">${esc(hab.n)}</div>`;
+      days.forEach(ds=>{
+        const on = isOn(ds, hab.id);
+        const future = ds > TODAY;
+        h += `<button class="hb-dot${on?' on':''}${ds===TODAY?' today':''}${future?' future':''}"
+          style="--c:${hbColor(hi)}" data-hb="${hab.id}" data-hd="${ds}"
+          aria-label="${esc(hab.n)} ${ds}" aria-pressed="${on}"><i></i></button>`;
+      });
+      h += `</div>`;
+    });
+
+    // consistency: judged against days elapsed, not the whole week
+    const elapsed = days.filter(d => d <= TODAY).length;
+    const possible = elapsed * defs.length;
+    let done = 0;
+    days.filter(d=>d<=TODAY).forEach(ds => defs.forEach(hab => { if (isOn(ds, hab.id)) done++; }));
+    const pct = possible ? Math.round(done/possible*100) : 0;
+    const col = pct >= 80 ? 'var(--sage)' : pct >= 50 ? 'var(--amber)' : 'var(--rust)';
+
+    h += `<div class="hb-cons">
+      <div class="lbl"><span>Weekly consistency</span><b>${pct}%</b></div>
+      <div class="track"><div class="fill" style="width:${pct}%;background:${col}"></div></div>
+    </div></div>`;
+
+    $('hb-engine').innerHTML = h;
+    renderHabitChart();
+    renderHabitNote(pct, done, possible, elapsed);
+  }
+
+  function renderHabitNote(pct, done, possible, elapsed){
+    let t;
+    if (!possible) t = '<b>Tap a circle to mark a habit done.</b> The chart below fills in as weeks accumulate.';
+    else if (done === 0) t = `<b>Nothing checked yet this week.</b> Start with one — the circle you tap today is worth more than the plan you make for Monday.`;
+    else if (pct >= 80) t = `<b>${done} of ${possible} so far.</b> This is the range where habits stop needing willpower. Protect it.`;
+    else if (pct >= 50) t = `<b>${done} of ${possible} so far.</b> Solid. Look down the grid for the row with the most gaps — that single habit is where your next gain is, not in adding another one.`;
+    else t = `<b>${done} of ${possible} across ${elapsed} day${elapsed>1?'s':''}.</b> When consistency runs low, the fix is usually fewer habits, not more discipline. Consider cutting this list in half until it sticks.`;
+    $('hb-note').innerHTML = t;
+  }
+
+  /* period buckets for the chart */
+  function hbPeriods(){
+    const out = [];
+    if (hbPeriod === 'w'){
+      const cur = mondayOf(NOW);
+      for (let i=7; i>=0; i--){
+        const m = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate()-i*7);
+        const dates = weekDates(m).filter(d => d <= TODAY);
+        if (dates.length) out.push({label:`${m.getMonth()+1}/${m.getDate()}`, dates});
+      }
+    } else {
+      for (let i=5; i>=0; i--){
+        const m = new Date(NOW.getFullYear(), NOW.getMonth()-i, 1);
+        const last = new Date(m.getFullYear(), m.getMonth()+1, 0).getDate();
+        const dates = [];
+        for (let d=1; d<=last; d++){
+          const ds = iso(new Date(m.getFullYear(), m.getMonth(), d));
+          if (ds <= TODAY) dates.push(ds);
+        }
+        if (dates.length) out.push({label:m.toLocaleDateString('en-US',{month:'short'}), dates});
+      }
+    }
+    return out;
+  }
+
+  function renderHabitChart(){
+    const defs = D.habitDefs;
+    const periods = hbPeriods();
+    const anyData = Object.keys(D.habitLog).length > 0;
+
+    if (!anyData || periods.length < 2){
+      $('hb-chart').innerHTML = `<div class="d-none" style="text-align:center;padding:32px 10px">
+        ${anyData ? 'One period so far — the trend line appears once there are two.'
+                  : 'Check some habits and your completion trend builds here.'}</div>` +
+        legendHTML(defs);
+      return;
+    }
+
+    const W=320, H=168, L=32, R=8, T=12, B=24;
+    const X = i => periods.length===1 ? (L+W-R)/2 : L + (i/(periods.length-1))*(W-L-R);
+    const Y = v => T + (1-v/100)*(H-T-B);
+
+    let g = '';
+    [0,25,50,75,100].forEach(v=>{
+      const y = Y(v);
+      g += `<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="#333D48" stroke-width="1" opacity="${v===0?'.8':'.45'}"/>
+            <text x="${L-5}" y="${(y+3.4).toFixed(1)}" text-anchor="end" fill="#5A6470" font-size="9" font-family="IBM Plex Mono">${v}</text>`;
+    });
+
+    let lines = '';
+    defs.forEach((hab, hi)=>{
+      if (hbHidden[hab.id]) return;
+      const c = hbColor(hi);
+      const vals = periods.map(p=>{
+        const hit = p.dates.filter(ds=>isOn(ds, hab.id)).length;
+        return p.dates.length ? hit/p.dates.length*100 : 0;
+      });
+      const pts = vals.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+      lines += `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2"
+                 stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>`;
+      lines += vals.map((v,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="${periods.length>6?2:2.8}" fill="${c}"/>`).join('');
+    });
+
+    const xl = `<text x="${L}" y="${H-6}" fill="#5A6470" font-size="9" font-family="IBM Plex Mono">${periods[0].label}</text>
+      <text x="${W-R}" y="${H-6}" text-anchor="end" fill="#5A6470" font-size="9" font-family="IBM Plex Mono">${periods[periods.length-1].label}</text>`;
+
+    $('hb-chart').innerHTML = `<div class="chart" style="margin-top:12px"><svg viewBox="0 0 ${W} ${H}" role="img"
+      aria-label="Habit completion percentage over time">${g}${lines}${xl}</svg></div>` + legendHTML(defs);
+  }
+
+  function legendHTML(defs){
+    return `<div class="hb-lgnd">` + defs.map((hab,hi)=>
+      `<button class="${hbHidden[hab.id]?'':'on'}" data-hl="${hab.id}" data-c="1"
+         style="color:${hbHidden[hab.id]?'':hbColor(hi)}">
+        <i style="background:${hbColor(hi)}"></i>${esc(hab.n)}</button>`).join('') + `</div>`;
+  }
+
+  function openHabitEditor(){
+    sheetMode = 'habit';
+    $('sheet-t').textContent = 'Edit habits';
+    $('sheet-body').innerHTML =
+      D.habitDefs.map((hab,hi)=>`<div class="hb-edit">
+        <i style="background:${hbColor(hi)}"></i>
+        <span>${esc(hab.n)}</span>
+        <button class="x" data-hdel="${hab.id}">&times;</button>
+      </div>`).join('') +
+      `<div class="hb-add">
+        <input id="hb-new" placeholder="New habit" autocomplete="off" maxlength="34">
+        <button class="btn primary sm" id="hb-addbtn">Add</button>
+      </div>
+      <div class="note" style="margin-top:16px"><b>Deleting a habit removes its history too.</b> Keep the list short — five to seven is where most people can actually hold every row. Past that, you're tracking failure instead of building it.</div>`;
+    showSheet();
+  }
+
+  /* ---------- tab bar scrolling ---------- */
+  function updateFades(){
+    const c = $('tabs'), bar = $('tabbar');
+    if (!c) return;
+    const max = c.scrollWidth - c.clientWidth;
+    bar.classList.toggle('more-l', c.scrollLeft > 4);
+    bar.classList.toggle('more-r', c.scrollLeft < max - 4);
+  }
+
+  function centerTab(btn){
+    const c = $('tabs');
+    const max = c.scrollWidth - c.clientWidth;
+    if (max <= 0) return;
+    const target = btn.offsetLeft - (c.clientWidth - btn.offsetWidth)/2;
+    c.scrollTo({left: Math.max(0, Math.min(max, target)), behavior:'smooth'});
+  }
+
   function download(name, text, type){
     const b = new Blob([text], {type});
     const u = URL.createObjectURL(b);
@@ -1587,13 +1801,19 @@
         document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
         b.classList.add('on');
         $('p-'+b.dataset.p).classList.add('on');
+        centerTab(b);
         if (b.dataset.p==='train') renderTrain();
         if (b.dataset.p==='weight') renderWeight();
         if (b.dataset.p==='rec') renderRecovery();
+        if (b.dataset.p==='habit') renderHabits();
         if (b.dataset.p==='hist'){ renderHist(); renderInsights(); }
         document.getElementById('app').scrollIntoView({block:'start'});
       };
     });
+
+    $('tabs').addEventListener('scroll', updateFades, {passive:true});
+    window.addEventListener('resize', updateFades);
+    window.addEventListener('orientationchange', ()=>setTimeout(updateFades, 250));
 
     $('add-meal').onclick = ()=>{
       const n = $('f-name').value.trim();
@@ -1620,6 +1840,32 @@
     };
 
     $('sheet-body').onclick = e=>{
+      if (sheetMode === 'habit'){
+        const del = e.target.closest('[data-hdel]');
+        if (del){
+          const id = del.dataset.hdel;
+          const hab = D.habitDefs.find(x=>x.id===id);
+          if (D.habitDefs.length <= 1){ toast('Keep at least one habit'); return; }
+          if (!confirm(`Delete "${hab.n}" and all of its history?`)) return;
+          D.habitDefs = D.habitDefs.filter(x=>x.id!==id);
+          Object.keys(D.habitLog).forEach(ds=>{
+            delete D.habitLog[ds][id];
+            if (!Object.keys(D.habitLog[ds]).length) delete D.habitLog[ds];
+          });
+          save(); openHabitEditor(); renderHabits(); toast('Deleted');
+          return;
+        }
+        if (e.target.id === 'hb-addbtn'){
+          const n = $('hb-new').value.trim();
+          if (!n){ toast('Give it a name'); return; }
+          if (D.habitDefs.length >= 10){ toast('Ten is the max — and already too many'); return; }
+          let id = n.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8) || 'h';
+          while (D.habitDefs.some(x=>x.id===id)) id += Math.floor(Math.random()*10);
+          D.habitDefs.push({id, n});
+          save(); openHabitEditor(); renderHabits(); toast('Added');
+        }
+        return;
+      }
       if (sheetMode !== 'ideas') return;
       const b = e.target.closest('[data-idea]');
       if (!b) return;
@@ -1634,33 +1880,6 @@
       const b = e.target.closest('[data-mdel]');
       if (!b) return;
       D.meals[TODAY].splice(+b.dataset.mdel,1); save(); renderEat(); renderHist();
-    };
-
-    document.querySelectorAll('.w-ub').forEach(b=>{
-      b.onclick = ()=>{
-        waterUnit = b.dataset.wu;
-        document.querySelectorAll('.w-ub').forEach(x=>x.classList.toggle('on', x===b));
-        $('wa-val').focus();
-      };
-    });
-
-    const logWater = ()=>{
-      const v = num($('wa-val').value);
-      if (v <= 0){ toast('Enter an amount first'); $('wa-val').focus(); return; }
-      addWater(v, waterUnit);
-      $('wa-val').value = '';
-      const left = waterGoal(TODAY) - waterTotal(TODAY);
-      toast(left > 0 ? `${Math.round(left)} oz to go` : 'Water goal hit');
-    };
-    $('add-water').onclick = logWater;
-    $('wa-val').addEventListener('keydown', e=>{ if (e.key === 'Enter') logWater(); });
-
-    $('water-list').onclick = e=>{
-      const b = e.target.closest('[data-wadel]');
-      if (!b) return;
-      D.water[TODAY].splice(+b.dataset.wadel,1);
-      if (!D.water[TODAY].length) delete D.water[TODAY];
-      save(); renderWater(); renderHist();
     };
 
     $('p-train').addEventListener('input', e=>{
@@ -1712,6 +1931,40 @@
       toast('Now beat it by a rep');
     });
 
+    $('p-habit').addEventListener('click', e=>{
+      const dot = e.target.closest('[data-hb]');
+      if (dot){
+        if (dot.dataset.hd > TODAY){ toast('That day hasn\'t happened yet'); return; }
+        toggleHabit(dot.dataset.hd, dot.dataset.hb);
+        renderHabits();
+        return;
+      }
+      const lg = e.target.closest('[data-hl]');
+      if (lg){
+        const id = lg.dataset.hl;
+        if (hbHidden[id]) delete hbHidden[id]; else hbHidden[id] = 1;
+        renderHabitChart();
+        return;
+      }
+      const seg = e.target.closest('[data-per]');
+      if (seg){
+        hbPeriod = seg.dataset.per;
+        document.querySelectorAll('#hb-seg button').forEach(b=>b.classList.toggle('on', b.dataset.per===hbPeriod));
+        renderHabitChart();
+      }
+    });
+
+    $('hb-manage').onclick = openHabitEditor;
+
+    $('hb-reset').onclick = ()=>{
+      const days = weekDates(mondayOf(NOW));
+      const n = days.reduce((a,ds)=>a + (D.habitLog[ds] ? Object.keys(D.habitLog[ds]).length : 0), 0);
+      if (!n){ toast('Nothing checked this week'); return; }
+      if (!confirm(`This clears all ${n} check${n>1?'s':''} from this week. It cannot be undone. Continue?`)) return;
+      days.forEach(ds=>delete D.habitLog[ds]);
+      save(); renderHabits(); toast('Week cleared');
+    };
+
     $('add-wt').onclick = ()=>{
       const v = num($('w-val').value), d = $('w-date').value || TODAY;
       if (!v){ toast('Enter a weight'); return; }
@@ -1750,12 +2003,8 @@
     };
 
     $('save-t').onclick = ()=>{
-      const dflt = fresh().targets;
       D.targets = {cal:num($('t-cal').value), p:num($('t-p').value), c:num($('t-c').value),
-                   f:num($('t-f').value), na:num($('t-na').value),
-                   wtr:num($('t-wtr').value)||dflt.wtr,
-                   wrs:num($('t-wrs').value)||dflt.wrs,
-                   wfl:num($('t-wfl').value)||dflt.wfl};
+                   f:num($('t-f').value), na:num($('t-na').value)};
       save(); renderEat(); renderHist(); toast('Targets updated');
     };
 
@@ -1777,10 +2026,11 @@
       csv += '\ntype,date,walk_minutes\n';
       Object.keys(D.walks).sort().forEach(d=>{ csv += `walk,${d},${D.walks[d]}\n`; });
 
-      csv += '\ntype,date,water_oz,water_l,goal_oz,floor_oz,training_day\n';
-      Object.keys(D.water).sort().forEach(d=>{
-        const o = waterTotal(d);
-        csv += `water,${d},${o.toFixed(1)},${L_OF(o).toFixed(2)},${waterGoal(d)},${D.targets.wfl},${isTrainDay(d)?'yes':'no'}\n`;
+      csv += '\ntype,date,habit,done\n';
+      Object.keys(D.habitLog).sort().forEach(d=>{
+        D.habitDefs.forEach(hab=>{
+          if (D.habitLog[d][hab.id]) csv += `habit,${d},"${hab.n.replace(/"/g,'""')}",1\n`;
+        });
       });
 
       csv += '\ntype,date,workout,exercise,set,weight_lb,reps\n';
@@ -1797,14 +2047,14 @@
   /* ---------- boot ---------- */
   (async function init(){
     D = (await load()) || fresh();
-    // merge per-key so saved data from before water existed picks up the new defaults
-    D.targets  = Object.assign({}, fresh().targets, D.targets || {});
+    D.targets  = D.targets  || fresh().targets;
     D.meals    = D.meals    || {};
-    D.water    = D.water    || {};
     D.weights  = D.weights  || [];
     D.training = D.training || {};
     D.recovery = D.recovery || {};
     D.walks    = D.walks    || {};
+    D.habitDefs = (D.habitDefs && D.habitDefs.length) ? D.habitDefs : defaultHabits();
+    D.habitLog  = D.habitLog  || {};
     D.goalWeight = D.goalWeight || 175;
 
     $('today-str').textContent = NOW.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'}).toUpperCase();
@@ -1812,11 +2062,12 @@
     $('r-date').value = TODAY;
     const g = D.targets;
     $('t-cal').value=g.cal; $('t-p').value=g.p; $('t-c').value=g.c; $('t-f').value=g.f; $('t-na').value=g.na;
-    $('t-wtr').value=g.wtr; $('t-wrs').value=g.wrs; $('t-wfl').value=g.wfl;
     const r = D.recovery[TODAY];
     if (r){ $('r-rec').value = r.rec||''; $('r-sleep').value = r.sleep||''; $('r-rhr').value = r.rhr||''; }
 
-    wire(); renderGreet(); renderEat(); renderWeight(); renderRecovery(); renderHist(); renderInsights(); renderBackupLine();
+    wire(); renderGreet(); renderEat(); renderWeight(); renderRecovery();
+    renderHabits(); renderHist(); renderInsights(); renderBackupLine();
+    updateFades();
   })();
 })();
 </script>
