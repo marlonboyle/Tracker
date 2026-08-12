@@ -229,6 +229,26 @@
   .pk.on b { color: var(--amber); }
   .pk.on span { color: var(--muted); }
 
+  .walk {
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 3px solid var(--sage); border-radius: 0 10px 10px 0;
+    padding: 13px 15px; margin-top: 16px;
+  }
+  .walk h4 {
+    font-family: var(--f-display); font-size: 15px; font-weight: 700;
+    letter-spacing: .05em; text-transform: uppercase; margin: 0 0 7px; color: var(--sage);
+  }
+  .walk p { margin: 0 0 8px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .walk p:last-child { margin-bottom: 0; }
+  .walk b { color: var(--ink); font-weight: 600; }
+  .walk-log { display: flex; gap: 8px; align-items: center; margin-top: 11px; }
+  .walk-log input {
+    flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 7px;
+    padding: 10px 12px; font-family: var(--f-data); font-size: 14px; text-align: center;
+  }
+  .walk-log button { flex: 0 0 auto; }
+  .walk-done { font-family: var(--f-data); font-size: 12px; color: var(--sage); margin-top: 9px; }
+
   .rest-day { text-align: center; padding: 34px 20px; }
   .rest-day .big {
     font-family: var(--f-display); font-size: 27px; font-weight: 700;
@@ -318,6 +338,22 @@
   .idea .m { font-family: var(--f-data); font-size: 11px; color: var(--dim); margin-top: 5px; }
   .idea .n { font-size: 12.5px; color: var(--muted); margin-top: 7px; line-height: 1.45; }
   .idea .n.warn { color: var(--rust); }
+  .idea .fit {
+    font-family: var(--f-display); font-size: 11px; font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase;
+    margin-top: 7px; display: block;
+  }
+
+  .diag {
+    background: var(--raised); border-left: 3px solid var(--amber);
+    border-radius: 0 9px 9px 0; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .diag .hl { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .diag .sub { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .diag .nums {
+    font-family: var(--f-data); font-size: 11.5px; color: var(--dim);
+    margin-top: 8px; letter-spacing: .02em;
+  }
 
   /* ---------- insights ---------- */
   /* ---------- recovery chart ---------- */
@@ -477,6 +513,7 @@
     <div class="btn-row">
       <button class="btn" data-open="b">Breakfast</button>
       <button class="btn" data-open="s">Snacks</button>
+      <button class="btn" data-open="d">Dinner</button>
     </div>
   </div>
 
@@ -656,6 +693,14 @@
        cal:610,p:39,c:45,f:32,na:1450,
        note:'Your default. Add 2 egg whites to push protein to 46 g for almost no calories.', warn:true,
        warnText:'Salty anchor — no ham sandwich on a day you eat this.'},
+      {n:'The standard, no cream cheese', d:'3 eggs · 3 bacon · ½ cup beans · plain sourdough',
+       cal:560,p:38,c:44,f:27,na:1405,
+       note:'Same breakfast, 50 fewer calories and 5 g less fat. Barely changes sodium — the bacon is doing that work, not the cream cheese.', warn:true,
+       warnText:'Still a salty anchor — no ham sandwich on a day you eat this.'},
+      {n:'Starbucks spinach feta wrap', d:'Egg white, spinach, feta, sun-dried tomato',
+       cal:290,p:20,c:34,f:10,na:840,
+       note:'Convenient, but small — 290 cal against a ~600 breakfast slot, and only 20 g protein. Pair it with a shake or it quietly costs you the day\'s surplus.', warn:true,
+       warnText:'840 mg sodium for one small item — over a third of your ceiling. Keep the rest of the day clean.'},
       {n:'The skillet', d:'3 eggs + spinach, ham or bacon, cheese · sourdough · banana',
        cal:640,p:42,c:52,f:30,na:1100,
        note:'Best protein-to-effort ratio of the four. One pan.'},
@@ -677,9 +722,16 @@
        cal:480,p:30,c:40,f:22,na:1650,
        note:'', warn:true,
        warnText:'Salty anchor — skip bacon at breakfast on days you eat this.'},
+      {n:'Ham & swiss sourdough, no mustard', d:'Black forest ham · swiss · plain',
+       cal:475,p:30,c:40,f:22,na:1595,
+       note:'Mustard is almost free on calories — it\'s the ham and cheese carrying the sodium. Drop it for taste, not for numbers.', warn:true,
+       warnText:'Salty anchor — skip bacon at breakfast on days you eat this.'},
       {n:'Greek yogurt + almonds', d:'Sugar-free protein yogurt · handful of almonds',
        cal:300,p:24,c:14,f:16,na:90,
        note:'Good evening option. Slow protein before bed.'},
+      {n:'Greek yogurt + chia seeds', d:'Sugar-free protein yogurt · 1 tbsp chia',
+       cal:210,p:22,c:15,f:7,na:61,
+       note:'Best protein-per-calorie snack on this list, and almost no sodium. Let the chia sit 10 minutes and it thickens the yogurt.'},
       {n:'Cottage cheese + papaya', d:'1 cup cottage cheese · fruit',
        cal:300,p:27,c:22,f:10,na:700,
        note:'Higher sodium than it looks — cottage cheese runs ~700 mg per cup. Count it.'},
@@ -692,6 +744,33 @@
       {n:'Roasted pork on sourdough', d:'Fresh lechón · mustard · sourdough',
        cal:450,p:34,c:38,f:17,na:600,
        note:'Same sandwich, roughly a third of the sodium of the deli ham version.'}
+    ],
+    d: [
+      {n:'Chicken, rice and vegetables', d:'6 oz chicken breast · 1 cup rice · vegetables in olive oil',
+       cal:605,p:59,c:55,f:18,na:250,
+       note:'The workhorse. Highest protein for the sodium on this list.'},
+      {n:'Beef, potato and salad', d:'6 oz beef · roast potato · green salad with olive oil',
+       cal:670,p:52,c:50,f:28,na:300,
+       note:'Beef carries more iron and zinc than chicken — worth rotating in a few times a week.'},
+      {n:'Pork loin and quinoa', d:'6 oz pork loin · 1 cup quinoa · vegetables',
+       cal:630,p:56,c:60,f:20,na:280,
+       note:'Quinoa brings a bit more protein than rice. Good when you\'re chasing the last 15 g.'},
+      {n:'Big protein salad', d:'6 oz chicken · greens · black beans · avocado · queso fresco',
+       cal:550,p:48,c:30,f:26,na:420,
+       note:'Lightest real dinner here. Use it on days you overshot at lunch.'},
+      {n:'Beef pasta', d:'6 oz ground beef · pasta · tomato sauce · parmesan',
+       cal:820,p:50,c:85,f:28,na:750,
+       note:'Your biggest calorie option. Sauce is where the sodium hides — homemade tomato beats jarred by 400 mg.'},
+      {n:'Chicken burrito', d:'6 oz chicken · rice · beans · avocado · cheese · flour tortilla',
+       cal:750,p:48,c:70,f:26,na:900,
+       note:'One of the few tortilla formats you eat. Filling, and easy to overshoot sodium on.'},
+      {n:'Eggs, beans and avocado', d:'3 eggs · 1 cup black beans · ½ avocado · sourdough',
+       cal:640,p:32,c:52,f:32,na:420,
+       note:'Light night. Protein runs low — only use this when you\'re already close to 155 g.'},
+      {n:'Pizza', d:'3–4 slices',
+       cal:850,p:38,c:95,f:34,na:1750,
+       note:'Not off the table — you\'re gaining, and the calories are useful.', warn:true,
+       warnText:'Sodium is the problem, not the pizza. Only on a day you\'ve stayed clean until now.'}
     ]
   };
 
@@ -713,7 +792,7 @@
     return {
       targets:{cal:2650,p:155,c:320,f:78,na:2300},
       goalWeight:175, meals:{},
-      weights:[], training:{}, recovery:{}, lastBackup:null
+      weights:[], training:{}, recovery:{}, walks:{}, lastBackup:null
     };
   }
 
@@ -785,6 +864,28 @@
     return null;
   }
 
+  function walkHTML(){
+    const mins = D.walks[TODAY];
+    const wk = [];
+    for (let i=0;i<7;i++){
+      const ds = iso(new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()-i));
+      if (D.walks[ds]) wk.push(D.walks[ds]);
+    }
+    const total = wk.reduce((a,b)=>a+b,0);
+
+    return `<div class="walk">
+      <h4>Dog walk</h4>
+      <p><b>This is real training, not filler.</b> Walking is zone 2 cardio — the intensity where you can still hold a conversation. It builds the aerobic base that helps you recover between sets and between sessions.</p>
+      <p><b>For your blood pressure specifically:</b> regular walking is one of the few things that lowers resting pressure on its own, without the muscle-building trade-offs of hard cardio. It's the reason your resting heart rate should drift down over the next few months.</p>
+      <p><b>Aim for 30 minutes most days</b>, brisk enough to breathe a little harder. It won't interfere with lifting at this volume — 45+ minutes of hard cardio daily would, a dog walk won't. On lifting days, walk after or at a different time, not right before.</p>
+      <div class="walk-log">
+        <input id="walk-min" type="number" inputmode="numeric" placeholder="minutes" value="${mins||''}">
+        <button class="btn sm" id="walk-save">Log walk</button>
+      </div>
+      ${total?`<div class="walk-done">${total} minutes walked in the last 7 days${wk.length?` · ${wk.length} day${wk.length>1?'s':''}`:''}</div>`:''}
+    </div>`;
+  }
+
   function pickerHTML(current){
     const scheduled = byDay[NOW.getDay()];
     const label = current
@@ -812,7 +913,8 @@
       pane.innerHTML = `<div class="rest-day"><div class="big">Rest day</div>
         <p>No lifting on ${names[NOW.getDay()]}. Walk the dog, eat your protein.</p></div>
         ${pickerHTML(null)}
-        <div class="note"><b>Next up:</b> ${nextUp()}. Rest is when the muscle is actually built — the training only starts the process.</div>`;
+        <div class="note"><b>Next up:</b> ${nextUp()}. Rest is when the muscle is actually built — the training only starts the process.</div>
+        ${walkHTML()}`;
       return;
     }
 
@@ -848,6 +950,7 @@
 
     html += `<div class="note"><b>Tap a "last time" number to copy it in</b>, then beat it by a rep. When every set hits the top of the range, add 5 lb next session and drop back to the bottom. That loop is the entire program.</div>`;
     html += pickerHTML(letter);
+    html += walkHTML();
     pane.innerHTML = html;
   }
 
@@ -956,11 +1059,80 @@
     $('sheet-body').scrollTop = 0;
   }
 
+  const TITLES = {b:'Breakfast', s:'Snacks', d:'Dinner'};
+
+  function dinnerFit(x, calLeft, pLeft, naLeft){
+    // negative score sorts first
+    let score = 0, tag = '', color = '';
+    if (x.na > naLeft){
+      // proportional, so the least-bad option still sorts to the top
+      score += 100 + (x.na - naLeft) / 10;
+      tag = naLeft < 0
+        ? `Adds ${x.na} mg — you're already over`
+        : `Puts you ${x.na - naLeft} mg over sodium`;
+      color = 'var(--rust)';
+    } else {
+      if (pLeft > 40 && x.p >= 50){ score -= 30; tag = 'Covers your protein gap'; color = 'var(--sage)'; }
+      if (calLeft > 750 && x.cal >= 700){ score -= 25; tag = tag ? 'Closes both the calorie and protein gap' : 'Big enough for the calories you still need'; color = 'var(--sage)'; }
+      if (naLeft < 500 && x.na <= 350){ score -= 35; tag = 'Low sodium — what today needs'; color = 'var(--sage)'; }
+      if (calLeft < 450 && x.cal <= 620){ score -= 20; tag = tag || 'Light enough for where you are'; color = 'var(--amber)'; }
+      if (calLeft < 450 && x.cal >= 750){ score += 40; tag = 'More than you have room for'; color = 'var(--amber)'; }
+    }
+    score += Math.abs(x.cal - Math.max(300, calLeft)) / 100;
+    return {score, tag, color};
+  }
+
+  function dinnerHTML(){
+    const t = totals(TODAY), g = D.targets;
+    const calLeft = Math.round(g.cal - t.cal);
+    const pLeft = Math.round(g.p - t.p);
+    const naLeft = Math.round(g.na - t.na);
+
+    let hl, sub;
+    if (t.cal === 0){
+      hl = 'Nothing logged yet today.';
+      sub = 'These are ranked generically. Log your day and this re-sorts around what you actually still need.';
+    } else if (naLeft < 400){
+      hl = naLeft < 0 ? `Already ${Math.abs(naLeft)} mg over on sodium.` : `Only ${naLeft} mg of sodium left.`;
+      sub = 'Sodium is the binding constraint tonight, not calories. Cook it plain — no cubes, no cured meat, no jarred sauce. One high day won\'t hurt you; a pattern of them will.';
+    } else if (pLeft > 55){
+      hl = `${pLeft} g of protein still to go.`;
+      sub = 'That\'s a lot for one meal. Take the highest-protein option below and add a shake after — protein is the one target worth chasing to the end of the day.';
+    } else if (calLeft > 850){
+      hl = `${calLeft} calories short with one meal left.`;
+      sub = 'Undereating is the most common reason a beginner doesn\'t grow. Go with a bigger option, and add rice or avocado rather than skipping it.';
+    } else if (calLeft < 300){
+      hl = calLeft < 0 ? `Already ${Math.abs(calLeft)} over for the day.` : `Only ${calLeft} calories left.`;
+      sub = 'Calories are a weekly average, so one heavy day is fine. Eat a normal dinner and let the week balance it — just hit your protein.';
+    } else {
+      hl = 'On track. Normal dinner.';
+      sub = `About ${calLeft} calories and ${pLeft} g of protein left — that's exactly one meal.`;
+    }
+
+    const ranked = IDEAS.d.map((x,i)=>({x, i, ...dinnerFit(x, calLeft, pLeft, naLeft)}))
+                         .sort((a,b)=>a.score-b.score);
+
+    return `<div class="diag">
+        <div class="hl">${hl}</div>
+        <div class="sub">${sub}</div>
+        <div class="nums">left today · ${calLeft} cal · ${pLeft} g protein · ${naLeft} mg sodium</div>
+      </div>` +
+      ranked.map(({x,i,tag,color})=>`
+      <button class="idea" data-idea="${i}">
+        <div class="t"><b>${esc(x.n)}</b><em>${x.p} g protein</em></div>
+        <div class="m">${esc(x.d)}</div>
+        <div class="m">${x.cal} cal · ${x.c}c · ${x.f}f · ${x.na} mg sodium</div>
+        ${tag?`<span class="fit" style="color:${color}">${esc(tag)}</span>`:''}
+        ${x.note?`<div class="n">${esc(x.note)}</div>`:''}
+        ${x.warn?`<div class="n warn">${esc(x.warnText)}</div>`:''}
+      </button>`).join('');
+  }
+
   function openSheet(k){
     sheetMode = 'ideas';
     ideaKey = k;
-    $('sheet-t').textContent = k === 'b' ? 'Breakfast' : 'Snacks';
-    $('sheet-body').innerHTML = IDEAS[k].map((x,i)=>`
+    $('sheet-t').textContent = TITLES[k];
+    $('sheet-body').innerHTML = k === 'd' ? dinnerHTML() : IDEAS[k].map((x,i)=>`
       <button class="idea" data-idea="${i}">
         <div class="t"><b>${esc(x.n)}</b><em>${x.p} g protein</em></div>
         <div class="m">${esc(x.d)}</div>
@@ -1021,8 +1193,10 @@
     // weight + recovery
     const wt = D.weights.find(w=>w.d===ds);
     const rc = D.recovery[ds];
-    if (wt || rc){
+    const wk = D.walks[ds];
+    if (wt || rc || wk){
       h += `<div class="d-sec"><div class="d-hd"><span>Body</span></div>`;
+      if (wk) h += `<div class="d-ex"><div class="n">Dog walk</div><div class="s">${wk} minutes</div></div>`;
       if (wt) h += `<div class="d-ex"><div class="n">Weight</div><div class="s">${wt.lb.toFixed(1)} lb</div></div>`;
       if (rc){
         const bits = [rc.rec?`${rc.rec}% recovery`:'', rc.sleep?`${rc.sleep} h sleep`:'', rc.rhr?`${rc.rhr} bpm resting`:''].filter(Boolean);
@@ -1340,6 +1514,14 @@
     });
 
     $('p-train').addEventListener('click', e=>{
+      if (e.target.id === 'walk-save'){
+        const m = num($('walk-min').value);
+        if (m > 0) D.walks[TODAY] = m; else delete D.walks[TODAY];
+        save(); renderTrain(); renderHist();
+        toast(m > 0 ? `${m} min logged` : 'Walk cleared');
+        return;
+      }
+
       const pick = e.target.closest('[data-pick]');
       if (pick){
         const k = pick.dataset.pick;
@@ -1426,6 +1608,9 @@
         const r = D.recovery[w.d]||{};
         csv += `weight,${w.d},${w.lb},${r.rec||''},${r.sleep||''},${r.rhr||''}\n`;
       });
+      csv += '\ntype,date,walk_minutes\n';
+      Object.keys(D.walks).sort().forEach(d=>{ csv += `walk,${d},${D.walks[d]}\n`; });
+
       csv += '\ntype,date,workout,exercise,set,weight_lb,reps\n';
       Object.keys(D.training).sort().forEach(d=>{
         const t = D.training[d];
@@ -1445,6 +1630,7 @@
     D.weights  = D.weights  || [];
     D.training = D.training || {};
     D.recovery = D.recovery || {};
+    D.walks    = D.walks    || {};
     D.goalWeight = D.goalWeight || 175;
 
     $('today-str').textContent = NOW.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'}).toUpperCase();
