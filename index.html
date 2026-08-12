@@ -441,6 +441,44 @@
   .stat .k { font-family: var(--f-display); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .stat .v { font-family: var(--f-data); font-size: 21px; font-weight: 500; margin-top: 3px; }
 
+  /* ---------- water ---------- */
+  .w-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 3px solid var(--steel); border-radius: 0 10px 10px 0;
+    padding: 14px 15px;
+  }
+  .w-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 9px; gap: 10px; }
+  .w-num { font-family: var(--f-display); font-size: 30px; font-weight: 700; line-height: 1; }
+  .w-num .w-u { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin-left: 4px; text-transform: uppercase; }
+  .w-goal { font-family: var(--f-data); font-size: 11px; color: var(--muted); text-align: right; }
+  .w-goal b { color: var(--steel); font-weight: 600; }
+
+  .w-bar { position: relative; }
+  .w-mk {
+    position: absolute; top: -3px; bottom: -3px; width: 2px;
+    background: var(--ink); opacity: .5; border-radius: 1px; pointer-events: none;
+  }
+  .w-mk.done { background: var(--sage); opacity: .85; }
+  .w-status { font-family: var(--f-data); font-size: 11px; color: var(--muted); margin-top: 9px; line-height: 1.5; }
+  .w-status b { color: var(--steel); font-weight: 600; }
+  .w-status b.ok { color: var(--sage); }
+
+  .w-in { display: flex; gap: 8px; align-items: stretch; }
+  .w-in input {
+    flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 7px; padding: 11px 12px; text-align: center;
+    font-family: var(--f-data); font-size: 16px;
+  }
+  .w-unit { display: flex; flex: 0 0 auto; background: var(--bg); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .w-ub {
+    padding: 0 15px; font-family: var(--f-display); font-size: 13px; font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
+  }
+  .w-ub.on { background: var(--raised); color: var(--steel); }
+
+  .chip.w-chip { border-color: rgba(110,147,184,.32); }
+  .chip.w-chip .amt { font-family: var(--f-data); font-size: 13px; }
+
   /* ---------- tabs ---------- */
   .tabs {
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
@@ -492,6 +530,30 @@
 
     <div class="eyebrow">The rest</div>
     <div class="macros" id="other-macros"></div>
+
+    <div class="eyebrow">Water</div>
+    <div class="w-card">
+      <div class="w-top">
+        <div class="w-num"><span id="wa-now">0</span><span class="w-u">oz</span></div>
+        <div class="w-goal">of <b id="wa-goal">118</b> oz<br><span id="wa-lit">0.0 / 3.5 L</span></div>
+      </div>
+      <div class="w-bar">
+        <div class="track"><div class="fill" id="wa-fill" style="width:0%;background:var(--steel)"></div></div>
+        <div class="w-mk" id="wa-mk"></div>
+      </div>
+      <div class="w-status" id="wa-status"></div>
+    </div>
+    <div class="form">
+      <div class="w-in">
+        <input id="wa-val" type="number" step="any" inputmode="decimal" placeholder="How much?">
+        <div class="w-unit">
+          <button class="w-ub on" data-wu="oz">oz</button>
+          <button class="w-ub" data-wu="ml">ml</button>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn" id="add-water">Add water</button></div>
+    </div>
+    <div id="water-list" style="margin-top:11px"></div>
 
     <div class="eyebrow">Log food</div>
     <div class="form">
@@ -596,6 +658,11 @@
         <div class="f-cell"><label>Carb</label><input id="t-c" type="number" inputmode="numeric"></div>
         <div class="f-cell"><label>Fat</label><input id="t-f" type="number" inputmode="numeric"></div>
         <div class="f-cell"><label>Sod</label><input id="t-na" type="number" inputmode="numeric"></div>
+      </div>
+      <div class="three" style="margin-top:9px">
+        <div class="f-cell"><label>H₂O train</label><input id="t-wtr" type="number" inputmode="numeric"></div>
+        <div class="f-cell"><label>H₂O rest</label><input id="t-wrs" type="number" inputmode="numeric"></div>
+        <div class="f-cell"><label>H₂O floor</label><input id="t-wfl" type="number" inputmode="numeric"></div>
       </div>
       <div class="btn-row"><button class="btn" id="save-t">Save targets</button></div>
     </div>
@@ -790,8 +857,8 @@
 
   function fresh(){
     return {
-      targets:{cal:2650,p:155,c:320,f:78,na:2300},
-      goalWeight:175, meals:{},
+      targets:{cal:2650,p:155,c:320,f:78,na:2300,wtr:118,wrs:100,wfl:85},
+      goalWeight:175, meals:{}, water:{},
       weights:[], training:{}, recovery:{}, walks:{}, lastBackup:null
     };
   }
@@ -811,6 +878,67 @@
     const t = {cal:0,p:0,c:0,f:0,na:0};
     (D.meals[date]||[]).forEach(m=>{ t.cal+=m.cal; t.p+=m.p; t.c+=m.c; t.f+=m.f; t.na+=m.na; });
     return t;
+  }
+
+  /* ---------- WATER ---------- */
+  const OZ_PER_ML = 0.0338140;
+  const L_OF = oz => oz / 33.8140;
+  let waterUnit = 'oz';
+
+  // A day counts as a training day if a workout is on the schedule for it,
+  // or if sets were actually logged (covers make-up sessions on rest days).
+  function isTrainDay(ds){
+    if (byDay[new Date(ds+'T12:00:00').getDay()]) return true;
+    const tr = D.training[ds];
+    return !!(tr && tr.log && Object.values(tr.log).some(sets => sets.some(s => s && s.wt)));
+  }
+  function waterGoal(ds){ return isTrainDay(ds) ? D.targets.wtr : D.targets.wrs; }
+  function waterTotal(ds){ return (D.water[ds]||[]).reduce((a,e)=>a+e.oz, 0); }
+
+  function renderWater(){
+    const oz    = waterTotal(TODAY);
+    const goal  = waterGoal(TODAY);
+    const floor = D.targets.wfl;
+    const train = isTrainDay(TODAY);
+
+    $('wa-now').textContent  = Math.round(oz);
+    $('wa-goal').textContent = goal;
+    $('wa-lit').textContent  = `${L_OF(oz).toFixed(1)} / ${L_OF(goal).toFixed(1)} L`;
+
+    $('wa-fill').style.width      = Math.min(100, oz/goal*100) + '%';
+    $('wa-fill').style.background = oz >= goal ? 'var(--sage)' : 'var(--steel)';
+
+    const mk = $('wa-mk');
+    mk.style.left = Math.min(100, floor/goal*100) + '%';
+    mk.classList.toggle('done', oz >= floor);
+    mk.title = `Floor — ${floor} oz`;
+
+    const dayNote = train ? 'training day' : 'rest day';
+    let s;
+    if (oz >= goal){
+      s = `<b class="ok">Goal hit</b> — ${Math.round(oz)} oz on a ${dayNote}. Anything above is fine.`;
+    } else if (oz >= floor){
+      s = `Floor cleared. <b>${Math.round(goal-oz)} oz</b> to the ${dayNote} goal.`;
+    } else if (oz > 0){
+      s = `<b>${Math.round(floor-oz)} oz</b> to the floor of ${floor}. Goal is ${goal} — ${dayNote}.`;
+    } else {
+      s = `Goal <b>${goal} oz</b> (${L_OF(goal).toFixed(1)} L) — ${dayNote}. Floor is <b>${floor} oz</b>, don't finish below it.`;
+    }
+    $('wa-status').innerHTML = s;
+
+    const list = D.water[TODAY] || [];
+    $('water-list').innerHTML = list.length
+      ? `<div class="chips">` + list.map((e,i)=>
+          `<span class="chip w-chip"><span class="amt">${e.raw} ${e.u}</span>` +
+          `<button class="del" data-wadel="${i}" aria-label="Remove">×</button></span>`).join('') + `</div>`
+      : '';
+  }
+
+  function addWater(raw, unit){
+    const oz = unit === 'ml' ? raw * OZ_PER_ML : raw;
+    if (!D.water[TODAY]) D.water[TODAY] = [];
+    D.water[TODAY].push({raw, u:unit, oz});
+    save(); renderWater(); renderHist();
   }
 
   /* ---------- EAT ---------- */
@@ -846,6 +974,8 @@
           <div class="row-sub">${m.p}p · ${m.c}c · ${m.f}f · ${m.na}mg</div></div>
           <div class="row-cal">${m.cal}</div><button class="x" data-mdel="${i}">×</button></div>`).join('')
       : '<div class="empty">Nothing logged yet today.</div>';
+
+    renderWater();
   }
 
   function addMeal(m){
@@ -1194,8 +1324,13 @@
     const wt = D.weights.find(w=>w.d===ds);
     const rc = D.recovery[ds];
     const wk = D.walks[ds];
-    if (wt || rc || wk){
+    const wOz = waterTotal(ds);
+    if (wt || rc || wk || wOz){
       h += `<div class="d-sec"><div class="d-hd"><span>Body</span></div>`;
+      if (wOz){
+        const gl = waterGoal(ds);
+        h += `<div class="d-ex"><div class="n">Water</div><div class="s" style="color:${wOz>=gl?'var(--sage)':(wOz<D.targets.wfl?'var(--amber)':'var(--ink)')}">${Math.round(wOz)} oz / ${gl}  ·  ${L_OF(wOz).toFixed(1)} L</div></div>`;
+      }
       if (wk) h += `<div class="d-ex"><div class="n">Dog walk</div><div class="s">${wk} minutes</div></div>`;
       if (wt) h += `<div class="d-ex"><div class="n">Weight</div><div class="s">${wt.lb.toFixed(1)} lb</div></div>`;
       if (rc){
@@ -1501,6 +1636,33 @@
       D.meals[TODAY].splice(+b.dataset.mdel,1); save(); renderEat(); renderHist();
     };
 
+    document.querySelectorAll('.w-ub').forEach(b=>{
+      b.onclick = ()=>{
+        waterUnit = b.dataset.wu;
+        document.querySelectorAll('.w-ub').forEach(x=>x.classList.toggle('on', x===b));
+        $('wa-val').focus();
+      };
+    });
+
+    const logWater = ()=>{
+      const v = num($('wa-val').value);
+      if (v <= 0){ toast('Enter an amount first'); $('wa-val').focus(); return; }
+      addWater(v, waterUnit);
+      $('wa-val').value = '';
+      const left = waterGoal(TODAY) - waterTotal(TODAY);
+      toast(left > 0 ? `${Math.round(left)} oz to go` : 'Water goal hit');
+    };
+    $('add-water').onclick = logWater;
+    $('wa-val').addEventListener('keydown', e=>{ if (e.key === 'Enter') logWater(); });
+
+    $('water-list').onclick = e=>{
+      const b = e.target.closest('[data-wadel]');
+      if (!b) return;
+      D.water[TODAY].splice(+b.dataset.wadel,1);
+      if (!D.water[TODAY].length) delete D.water[TODAY];
+      save(); renderWater(); renderHist();
+    };
+
     $('p-train').addEventListener('input', e=>{
       const i = e.target;
       if (!i.dataset.k) return;
@@ -1588,8 +1750,12 @@
     };
 
     $('save-t').onclick = ()=>{
+      const dflt = fresh().targets;
       D.targets = {cal:num($('t-cal').value), p:num($('t-p').value), c:num($('t-c').value),
-                   f:num($('t-f').value), na:num($('t-na').value)};
+                   f:num($('t-f').value), na:num($('t-na').value),
+                   wtr:num($('t-wtr').value)||dflt.wtr,
+                   wrs:num($('t-wrs').value)||dflt.wrs,
+                   wfl:num($('t-wfl').value)||dflt.wfl};
       save(); renderEat(); renderHist(); toast('Targets updated');
     };
 
@@ -1611,6 +1777,12 @@
       csv += '\ntype,date,walk_minutes\n';
       Object.keys(D.walks).sort().forEach(d=>{ csv += `walk,${d},${D.walks[d]}\n`; });
 
+      csv += '\ntype,date,water_oz,water_l,goal_oz,floor_oz,training_day\n';
+      Object.keys(D.water).sort().forEach(d=>{
+        const o = waterTotal(d);
+        csv += `water,${d},${o.toFixed(1)},${L_OF(o).toFixed(2)},${waterGoal(d)},${D.targets.wfl},${isTrainDay(d)?'yes':'no'}\n`;
+      });
+
       csv += '\ntype,date,workout,exercise,set,weight_lb,reps\n';
       Object.keys(D.training).sort().forEach(d=>{
         const t = D.training[d];
@@ -1625,8 +1797,10 @@
   /* ---------- boot ---------- */
   (async function init(){
     D = (await load()) || fresh();
-    D.targets  = D.targets  || fresh().targets;
+    // merge per-key so saved data from before water existed picks up the new defaults
+    D.targets  = Object.assign({}, fresh().targets, D.targets || {});
     D.meals    = D.meals    || {};
+    D.water    = D.water    || {};
     D.weights  = D.weights  || [];
     D.training = D.training || {};
     D.recovery = D.recovery || {};
@@ -1638,6 +1812,7 @@
     $('r-date').value = TODAY;
     const g = D.targets;
     $('t-cal').value=g.cal; $('t-p').value=g.p; $('t-c').value=g.c; $('t-f').value=g.f; $('t-na').value=g.na;
+    $('t-wtr').value=g.wtr; $('t-wrs').value=g.wrs; $('t-wfl').value=g.wfl;
     const r = D.recovery[TODAY];
     if (r){ $('r-rec').value = r.rec||''; $('r-sleep').value = r.sleep||''; $('r-rhr').value = r.rhr||''; }
 
